@@ -34,7 +34,24 @@ while True:
 
     for (x, y, w, h) in faces:
         # Extract and preprocess face
-        face = frame[y:y+h, x:x+w]
+        # Expand the bounding box downward to include more of the chin
+        extra_chin = int(0.2 * h)  # Add 20% of face height below
+        y1 = y
+        y2 = min(y + h + extra_chin, frame.shape[0])
+
+        # Make the crop square by expanding width if needed
+        new_h = y2 - y1
+        center_x = x + w // 2
+        half_size = new_h // 2
+        x1 = max(center_x - half_size, 0)
+        x2 = min(center_x + half_size, frame.shape[1])
+
+        face = frame[y1:y2, x1:x2]
+        cv2.imshow("Detected Face", face)  # Optional: Show detected face
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
         input_face = preprocess_face(face)
 
         # Predict race
@@ -45,9 +62,10 @@ while True:
 
         # Draw bounding box and label
         label = f"{race} ({confidence*100:.2f}%)"
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(frame, label, (x, y-10), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        # Use new coordinates (x1, y1, x2, y2) for the expanded/square face region
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.putText(frame, label, (x1, y1-10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
     # Show the frame
     cv2.imshow("Ethnicity Detection", frame)
