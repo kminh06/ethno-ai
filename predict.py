@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 
 # Load your trained model
-model = load_model("ethnicity_model_1.h5")  # Change if your model file has a different name
+model = load_model("ethnicity_model_4.h5")  # Change if your model file has a different name
 
 # Define the race labels (edit if yours differ)
 race_labels = ['White', 'Black', 'Asian', 'Indian', 'Other']
